@@ -4,9 +4,9 @@ from app.routers.gotify import application, client, health, message, plugin, use
 router = APIRouter()
 
 # router.include_router(application.router)
-# router.include_router(client.router)
-router.include_router(health.router)
+router.include_router(client.router, tags=["client"])
+router.include_router(health.router, tags=["health"])
 # router.include_router(message.router)
 # router.include_router(plugin.router)
 # router.include_router(user.router)
-router.include_router(version.router)
+router.include_router(version.router, tags=["version"])
