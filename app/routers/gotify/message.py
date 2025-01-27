@@ -39,21 +39,30 @@ async def get_all_messages(request: Request, limit: int = 100, since: int = 0, q
     
 @router.post("/message", summary="Create a message.")
 async def create_message(request: Request, query_header: tuple = Depends(gotify_auth)):
-    async with httpx.AsyncClient() as client:
-        body = await request.json()
-        print(f"Request Body: {body}")
+    try:
+        body = await request.body()  # Get the raw body
+        print(f"Raw body: {body.decode()}")  # Log the raw body
 
+        if not body:
+            raise ValueError("No body found in the request")
+
+        body_json = await request.json()  # Parse the JSON
+        print(f"Parsed JSON: {body_json}")
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        raise e  # Re-raise the exception to see the traceback in logs
+
+    async with httpx.AsyncClient() as client:
         query, _ = query_header
 
         response = await client.post(
             f"{env_variables.GOTIFY_URL}/message?token={query}",
-            json=body, 
+            json=body,
             headers=dict(request.headers)
         )
 
         return response.json() if response.status_code == 200 else {"error": "Failed to create message"}
 
-    
 @router.delete("/message" , summary="Delete all messages.")
 async def delete_all_messages(request: Request, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
