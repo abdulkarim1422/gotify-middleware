@@ -56,13 +56,17 @@ async def delete_message(id: int, query_header: tuple = Depends(gotify_auth)):
         return response.json()
     
 @router.websocket("/stream")
-async def websocket_endpoint(websocket: WebSocket, request: Request):
-    try:
-        query, _ = await gotify_auth(request)
-        await websocket.accept()
+async def websocket_endpoint(websocket: WebSocket):
+    gotify_key = websocket.headers.get("x-gotify-key")
+    if not gotify_key:
+        await websocket.close(code=1008)  # Close with an error code
+        return
 
+    await websocket.accept()
+
+    try:
         async with websockets.connect(
-            f"{env_variables.GOTIFY_URL.replace('http', 'ws')}/stream?token={query}"
+            f"{env_variables.GOTIFY_URL.replace('http', 'ws')}/stream?token={gotify_key}"
         ) as ws:
             async for message in ws:
                 await websocket.send_text(message)
@@ -70,5 +74,4 @@ async def websocket_endpoint(websocket: WebSocket, request: Request):
         logging.info("WebSocket connection closed by the client")
     except Exception as e:
         logging.error(f"Error in WebSocket endpoint: {e}")
-        # Send error message to the WebSocket client (if needed)
-        await websocket.send_text(f"Error: {e}")
+        await websocket.close(code=1011)  # Internal server error
