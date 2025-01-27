@@ -63,7 +63,7 @@ async def delete_message(request: Request, id: int, query_header: tuple = Depend
         query, _ = query_header
         req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/message/{id}?token={query}", headers=dict(request.headers))
         response = await client.send(req)
-        return response.json()
+        return
     
 @router.websocket("/stream")
 async def websocket_endpoint(websocket: WebSocket):
