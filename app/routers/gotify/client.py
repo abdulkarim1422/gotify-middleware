@@ -1,33 +1,36 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import APIKeyHeader, APIKeyQuery
-from pydantic import BaseModel
-from typing import List
+from fastapi import APIRouter, Depends
 import httpx
 from app.initializers import env_variables
+from app.services.gotify_auth import gotify_auth
 
 router = APIRouter()
 
-api_key_header = APIKeyHeader(name="X-Gotify-Key", auto_error=False)
-api_key_query = APIKeyQuery(name="token", auto_error=False)
-
-def get_api_key(
-    api_key_header: str = Depends(api_key_header),
-    api_key_query: str = Depends(api_key_query),
-):
-    if api_key_header:
-        return api_key_header
-    elif api_key_query:
-        return api_key_query
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Unauthorized",
-        )
-
 @router.get("/client", summary="Return all clients")
-async def get_clients(api_key: str = Depends(get_api_key)):
+async def get_clients(query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("GET", f"{env_variables.GOTIFY_URL}/client?token={api_key}")
+        query, header = query_header
+        req = client.build_request("GET", f"{env_variables.GOTIFY_URL}/client?token={query}", headers={"Authorization": header})
         print(req)
+        response = await client.send(req)
+        return response.json()
+
+@router.post("/client", summary="Create a client")
+async def create_client(api_key: str = Depends(gotify_auth)):
+    async with httpx.AsyncClient() as client:
+        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/client?token={api_key}", json=client.dict())
+        response = await client.send(req)
+        return response.json()
+    
+@router.put("/client/{id}", summary="Update a client")
+async def update_client(id: int, client: dict, api_key: str = Depends(gotify_auth)):
+    async with httpx.AsyncClient() as client:
+        req = client.build_request("PUT", f"{env_variables.GOTIFY_URL}/client/{id}?token={api_key}", json=client)
+        response = await client.send(req)
+        return response.json()
+
+@router.delete("/client/{id}", summary="Delete a client")
+async def delete_client(id: int, api_key: str = Depends(gotify_auth)):
+    async with httpx.AsyncClient() as client:
+        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/client/{id}?token={api_key}")
         response = await client.send(req)
         return response.json()
