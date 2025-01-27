@@ -15,9 +15,10 @@ async def get_messages(id: int, query_header: tuple = Depends(gotify_auth)):
         return response.json()
     
 @router.delete("/application/{id}/message", summary="Delete all messages for an application.")
-async def delete_messages(id: int, api_key: str = Depends(gotify_auth)):
+async def delete_messages(id: int, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/application/{id}/message?token={api_key}")
+        query, header = query_header
+        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/application/{id}/message?token={query}", headers={"Authorization": header})
         response = await client.send(req)
         return response.json()
 
@@ -30,23 +31,26 @@ async def get_all_messages(query_header: tuple = Depends(gotify_auth)):
         return response.json()
     
 @router.post("/message", summary="Create a message.")
-async def create_message(message: dict, api_key: str = Depends(gotify_auth)):
+async def create_message(query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/message?token={api_key}", json=message)
+        query, header = query_header
+        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/message?token={query}", headers={"Authorization": header}, json=client.dict())
         response = await client.send(req)
         return response.json()
     
 @router.delete("/message" , summary="Delete all messages.")
-async def delete_all_messages(api_key: str = Depends(gotify_auth)):
+async def delete_all_messages(query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/message?token={api_key}")
+        query, header = query_header
+        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/message?token={query}", headers={"Authorization": header})
         response = await client.send(req)
         return response.json()
     
 @router.delete("/message/{id}", summary="Delete a message.")
-async def delete_message(id: int, api_key: str = Depends(gotify_auth)):
+async def delete_message(id: int, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/message/{id}?token={api_key}")
+        query, header = query_header
+        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/message/{id}?token={query}", headers={"Authorization": header})
         response = await client.send(req)
         return response.json()
     
