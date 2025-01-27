@@ -12,15 +12,14 @@ class User(BaseModel):
     name: str
 
 @router.get("/current/user", response_model=User)
-async def get_current_user(request: Request, query_header: tuple = Depends(gotify_auth)):
+async def get_current_user(request: Request):
     print("Incoming request headers:", dict(request.headers))
     print("Incoming request body:", await request.body())
     async with httpx.AsyncClient() as client:
-        query, header = query_header
         req = client.build_request(
             "GET",
-            f"{env_variables.GOTIFY_URL}/current/user?token={query}",
-            headers={"Authorization": header}
+            f"{env_variables.GOTIFY_URL}/current/user?token={dict(request.headers).get('token')}",
+            headers=dict(request.headers)
         )
         response = await client.send(req)
         if response.status_code == 401:
