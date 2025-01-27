@@ -5,6 +5,7 @@ from app.initializers import env_variables
 from app.services.gotify_auth import gotify_auth
 import logging
 from urllib.parse import parse_qs
+import json
 
 router = APIRouter()
 
@@ -40,6 +41,9 @@ async def get_all_messages(request: Request, limit: int = 100, since: int = 0, q
 async def create_message(request: Request, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
         body = await request.json()
+        print(body)
+        body = json.dumps(body)
+        print(body)
         query, _ = query_header
         req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/message?token={query}", headers=dict(request.headers), json=body)
         response = await client.send(req)
