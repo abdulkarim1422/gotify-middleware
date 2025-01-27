@@ -15,37 +15,42 @@ async def get_apps(query_header: tuple = Depends(gotify_auth)):
         return response.json()
 
 @router.post("/application", summary="Create an application.")
-async def create_app(api_key: str = Depends(gotify_auth)):
+async def create_app(query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/application?token={api_key}", json=client.dict())
+        query, header = query_header
+        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/application?token={query}", headers={"Authorization": header} , json=client.dict())
         response = await client.send(req)
         return response.json()
     
 @router.put("/application/{id}", summary="Update an application.")
-async def update_app(id: int, app: dict, api_key: str = Depends(gotify_auth)):
+async def update_app(id: int, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("PUT", f"{env_variables.GOTIFY_URL}/application/{id}?token={api_key}", json=app)
+        query, header = query_header
+        req = client.build_request("PUT", f"{env_variables.GOTIFY_URL}/application/{id}?token={query}", headers={"Authorization": header}, json=client.dict())
         response = await client.send(req)
         return response.json()
     
 @router.delete("/application/{id}", summary="Delete an application.")
-async def delete_app(id: int, api_key: str = Depends(gotify_auth)):
+async def delete_app(id: int, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/application/{id}?token={api_key}")
+        query, header = query_header
+        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/application/{id}?token={query}", headers={"Authorization": header})
         response = await client.send(req)
         return response.json()
     
 @router.post("/application/{id}/image", summary="Upload an image for an application.")
-async def upload_image(id: int, file: bytes, api_key: str = Depends(gotify_auth)):
+async def upload_image(id: int, file: bytes, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/application/{id}/image?token={api_key}", files={"file": file})
+        query, header = query_header
+        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/application/{id}/image?token={query}", headers={"Authorization": header}, files={"file": file})
         response = await client.send(req)
         return response.json()
     
 @router.delete("/application/{id}/image", summary="Delete an image for an application.")
-async def delete_image(id: int, api_key: str = Depends(gotify_auth)):
+async def delete_image(id: int, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/application/{id}/image?token={api_key}")
+        query, header = query_header
+        req = client.build_request("DELETE", f"{env_variables.GOTIFY_URL}/application/{id}/image?token={query}", headers={"Authorization": header})
         response = await client.send(req)
         return response.json()
     
