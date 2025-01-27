@@ -43,6 +43,10 @@ alembic upgrade head
 ```bash
 uvicorn app.main:app --reload --port 3091
 ```
+or
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 3091
+```
 
 
 ## Dev
