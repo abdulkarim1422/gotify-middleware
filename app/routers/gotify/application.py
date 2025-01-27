@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 import httpx
 from app.initializers import env_variables
 from app.services.gotify_auth import gotify_auth
