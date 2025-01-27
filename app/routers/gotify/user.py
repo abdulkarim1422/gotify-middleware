@@ -2,10 +2,16 @@ from fastapi import APIRouter, Depends
 import httpx
 from app.initializers import env_variables
 from app.services.gotify_auth import gotify_auth
+from pydantic import BaseModel
 
 router = APIRouter()
 
-@router.get("/current/user", summary="Return the current user.")
+class User(BaseModel):
+    admin: bool
+    id: int
+    name: str
+
+@router.get("/current/user", summary="Return the current user.", response_model=User)
 async def get_current_user(query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
         query, header = query_header
