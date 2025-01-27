@@ -39,20 +39,10 @@ async def get_all_messages(request: Request, limit: int = 100, since: int = 0, q
     
 @router.post("/message", summary="Create a message.")
 async def create_message(request: Request, query_header: tuple = Depends(gotify_auth)):
-    try:
-        body = await request.body()  # Get the raw body
-        print(f"Raw body: {body.decode()}")  # Log the raw body
-
-        if not body:
-            raise ValueError("No body found in the request")
-
-        body_json = await request.json()  # Parse the JSON
-        print(f"Parsed JSON: {body_json}")
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        raise e  # Re-raise the exception to see the traceback in logs
-
     async with httpx.AsyncClient() as client:
+        body = await request.json()
+        print(f"Request Body: {body}")
+
         query, _ = query_header
 
         response = await client.post(
