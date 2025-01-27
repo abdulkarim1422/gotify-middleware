@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, Request
 import httpx
 import websockets
 from app.initializers import env_variables
@@ -55,11 +55,13 @@ async def delete_message(id: int, query_header: tuple = Depends(gotify_auth)):
         return response.json()
     
 @router.websocket("/stream")
-async def websocket_endpoint(websocket: WebSocket, query_header: tuple = Depends(gotify_auth)):
+async def websocket_endpoint(websocket: WebSocket, request: Request):
+    query, _ = await gotify_auth(request)
     await websocket.accept()
     try:
-        query, _ = query_header
-        async with websockets.connect(f"{env_variables.GOTIFY_URL.replace('http','ws')}/stream?token={query}") as ws:
+        async with websockets.connect(
+            f"{env_variables.GOTIFY_URL.replace('http', 'ws')}/stream?token={query}"
+        ) as ws:
             async for message in ws:
                 await websocket.send_text(message)
     except WebSocketDisconnect:
