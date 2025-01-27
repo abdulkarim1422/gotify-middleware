@@ -3,8 +3,6 @@ import httpx
 from app.initializers import env_variables
 from app.services.gotify_auth import gotify_auth
 from pydantic import BaseModel
-from app.middlewares import gotify_middleware
-import json
 
 router = APIRouter()
 
