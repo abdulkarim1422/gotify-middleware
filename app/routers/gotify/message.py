@@ -57,6 +57,7 @@ async def delete_message(id: int, query_header: tuple = Depends(gotify_auth)):
     
 @router.websocket("/stream")
 async def websocket_endpoint(websocket: WebSocket):
+    print(websocket)
     gotify_key = websocket.headers.get("x-gotify-key")
     if not gotify_key:
         await websocket.close(code=1008)  # Close with an error code
