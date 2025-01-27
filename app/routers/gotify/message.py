@@ -55,10 +55,11 @@ async def delete_message(id: int, query_header: tuple = Depends(gotify_auth)):
         return response.json()
     
 @router.websocket("/stream")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, query_header: tuple = Depends(gotify_auth)):
     await websocket.accept()
     try:
-        async with websockets.connect(f"{env_variables.GOTIFY_URL.replace('http','ws')}/stream") as ws:
+        query, _ = query_header
+        async with websockets.connect(f"{env_variables.GOTIFY_URL.replace('http','ws')}/stream?token={query}") as ws:
             async for message in ws:
                 await websocket.send_text(message)
     except WebSocketDisconnect:
