@@ -3,6 +3,7 @@ import httpx
 import websockets
 from app.initializers import env_variables
 from app.services.gotify_auth import gotify_auth
+import logging
 
 router = APIRouter()
 
@@ -56,13 +57,18 @@ async def delete_message(id: int, query_header: tuple = Depends(gotify_auth)):
     
 @router.websocket("/stream")
 async def websocket_endpoint(websocket: WebSocket, request: Request):
-    query, _ = await gotify_auth(request)
-    await websocket.accept()
     try:
+        query, _ = await gotify_auth(request)
+        await websocket.accept()
+
         async with websockets.connect(
             f"{env_variables.GOTIFY_URL.replace('http', 'ws')}/stream?token={query}"
         ) as ws:
             async for message in ws:
                 await websocket.send_text(message)
     except WebSocketDisconnect:
-        pass
+        logging.info("WebSocket connection closed by the client")
+    except Exception as e:
+        logging.error(f"Error in WebSocket endpoint: {e}")
+        # Send error message to the WebSocket client (if needed)
+        await websocket.send_text(f"Error: {e}")
