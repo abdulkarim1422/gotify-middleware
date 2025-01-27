@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 import httpx
+import websockets
 from app.initializers import env_variables
 from app.services.gotify_auth import gotify_auth
-from fastapi import WebSocket, WebSocketDisconnect
 
 router = APIRouter()
 
@@ -54,15 +54,12 @@ async def delete_message(id: int, query_header: tuple = Depends(gotify_auth)):
         response = await client.send(req)
         return response.json()
     
-@router.websocket("/ws/message")
+@router.websocket("/stream")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        while True:
-            data = await websocket.receive_text()
-            # Here you would typically process the data and send back a response
-            # For demonstration, we are just echoing the received message
-            await websocket.send_text(f"Message received: {data}")
+        async with websockets.connect(f"{env_variables.GOTIFY_URL}/stream") as ws:
+            async for message in ws:
+                await websocket.send_text(message)
     except WebSocketDisconnect:
-        print("Client disconnected")
-
+        pass
