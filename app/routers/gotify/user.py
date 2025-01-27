@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 import httpx
 from app.initializers import env_variables
 from app.services.gotify_auth import gotify_auth
@@ -11,12 +11,20 @@ class User(BaseModel):
     id: int
     name: str
 
-@router.get("/current/user", summary="Return the current user.", response_model=User)
+@router.get("/current/user", response_model=User)
 async def get_current_user(query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
         query, header = query_header
-        req = client.build_request("GET", f"{env_variables.GOTIFY_URL}/current/user?token={query}", headers={"Authorization": header})
+        req = client.build_request(
+            "GET",
+            f"{env_variables.GOTIFY_URL}/current/user?token={query}",
+            headers={"Authorization": header}
+        )
         response = await client.send(req)
+        if response.status_code == 401:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        if response.status_code == 403:
+            raise HTTPException(status_code=403, detail="Forbidden")
         return response.json()
     
 @router.post("/current/user/password", summary="Update the current user's password.")
