@@ -18,7 +18,7 @@ async def get_current_user(request: Request):
     async with httpx.AsyncClient() as client:
         req = client.build_request(
             "GET",
-            f"{env_variables.GOTIFY_URL}/current/user?token={dict(request.headers).get('token')}",
+            f"{env_variables.GOTIFY_URL}/current/user?token={dict(request.headers).get('x-gotify-key')}",
             headers=dict(request.headers)
         )
         response = await client.send(req)
