@@ -39,8 +39,9 @@ async def get_all_messages(request: Request, limit: int = 100, since: int = 0, q
 @router.post("/message", summary="Create a message.")
 async def create_message(request: Request, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
+        body = await request.json()
         query, _ = query_header
-        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/message?token={query}", headers=dict(request.headers), json=client.dict())
+        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/message?token={query}", headers=dict(request.headers), json=body)
         response = await client.send(req)
         return response.json()
     
