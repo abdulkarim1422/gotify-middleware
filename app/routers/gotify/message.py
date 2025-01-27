@@ -25,10 +25,14 @@ async def delete_messages(id: int, query_header: tuple = Depends(gotify_auth)):
         return response.json()
 
 @router.get("/message", summary="Return all messages.")
-async def get_all_messages(query_header: tuple = Depends(gotify_auth)):
+async def get_all_messages(request: Request, limit: int = 100, since: int = 0, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
-        query, header = query_header
-        req = client.build_request("GET", f"{env_variables.GOTIFY_URL}/message?token={query}", headers={"Authorization": header})
+        query, _ = query_header
+        req = client.build_request(
+            "GET",
+            f"{env_variables.GOTIFY_URL}/message?token={query}&limit={limit}&since={since}",
+            headers=dict(request.headers)
+        )
         response = await client.send(req)
         return response.json()
     
@@ -79,3 +83,4 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         logging.error(f"Error in WebSocket endpoint: {e}")
         await websocket.close(code=1011)  # Internal server error
+
