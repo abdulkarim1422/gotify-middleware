@@ -41,13 +41,18 @@ async def get_all_messages(request: Request, limit: int = 100, since: int = 0, q
 async def create_message(request: Request, query_header: tuple = Depends(gotify_auth)):
     async with httpx.AsyncClient() as client:
         body = await request.json()
-        print(body)
-        body = json.dumps(body)
-        print(body)
+        print(f"Request Body: {body}")
+
         query, _ = query_header
-        req = client.build_request("POST", f"{env_variables.GOTIFY_URL}/message?token={query}", headers=dict(request.headers), json=body)
-        response = await client.send(req)
-        return response.json()
+
+        response = await client.post(
+            f"{env_variables.GOTIFY_URL}/message?token={query}",
+            json=body, 
+            headers=dict(request.headers)
+        )
+
+        return response.json() if response.status_code == 200 else {"error": "Failed to create message"}
+
     
 @router.delete("/message" , summary="Delete all messages.")
 async def delete_all_messages(request: Request, query_header: tuple = Depends(gotify_auth)):
