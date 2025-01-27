@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 import httpx
 from app.initializers import env_variables
 from app.services.gotify_auth import gotify_auth
@@ -12,7 +12,9 @@ class User(BaseModel):
     name: str
 
 @router.get("/current/user", response_model=User)
-async def get_current_user(query_header: tuple = Depends(gotify_auth)):
+async def get_current_user(request: Request, query_header: tuple = Depends(gotify_auth)):
+    print("Incoming request headers:", dict(request.headers))
+    print("Incoming request body:", await request.body())
     async with httpx.AsyncClient() as client:
         query, header = query_header
         req = client.build_request(
