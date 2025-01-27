@@ -3,7 +3,7 @@ from app.routers.gotify import application, client, health, message, plugin, use
 
 router = APIRouter()
 
-# router.include_router(application.router)
+router.include_router(application.router)
 router.include_router(client.router, tags=["client"])
 router.include_router(health.router, tags=["health"])
 # router.include_router(message.router)
