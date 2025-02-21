@@ -12,3 +12,4 @@ class User(SQLModel, table=True):
     updated_at: datetime = Field(default=datetime.now())
     client_token: str
     full_name: str
+    last_active: datetime = Field(default=datetime.now())
