@@ -5,6 +5,8 @@ import uuid
 
 # database class to store user data (gotify side)
 class User(SQLModel, table=True):
+    __tablename__ = "users"
+
     id: Optional[uuid.UUID] = Field(default=uuid.uuid4(), primary_key=True)
     username: str
     password: str
