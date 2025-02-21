@@ -1,11 +1,12 @@
 import fastapi
 from app.routers import gotify_routers
-
+from app.routers import internal_routers
 
 app = fastapi.FastAPI()
 
 # Include routers
 app.include_router(gotify_routers.router)
+app.include_router(internal_routers.router, prefix="/api", tags=["internal"])
 
 @app.get("/")
 def read_root():
