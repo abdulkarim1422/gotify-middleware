@@ -16,6 +16,6 @@ def update_user_last_active(x_gotify_key):
 def get_user_last_active(username):
     # get user from db
     user_obj = user_repo.get_user_by_username(username)
-    if user_obj.last_active:
+    if user_obj:
         return user_obj.last_active
     return None
