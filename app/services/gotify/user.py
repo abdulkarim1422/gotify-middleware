@@ -7,6 +7,11 @@ def current_user(username, password):
     response = requests.get(url, auth=HTTPBasicAuth(username, password))
     return response.json() # {'id': 1, 'name': 'xxxxxxx', 'admin': True}
 
+def current_user_via_token(token):
+    url = f"{env_variables.GOTIFY_URL}/current/user?token={token}"
+    response = requests.get(url)
+    return response.json() # {'id': 1, 'name': 'xxxxxxx', 'admin': True}
+
 def get_all_users():
     url = f"{env_variables.GOTIFY_URL}/user?token={env_variables.GOTIFY_ADMIN_TOKEN}"
     response = requests.get(url)
