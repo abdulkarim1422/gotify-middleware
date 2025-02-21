@@ -27,6 +27,7 @@ async def delete_messages(request: Request, id: int, query_header: tuple = Depen
 
 @router.get("/message", summary="Return all messages.")
 async def get_all_messages(request: Request, limit: int = 100, since: int = 0, query_header: tuple = Depends(gotify_auth)):
+    print(f"Request Headers: {request.headers}")
     async with httpx.AsyncClient() as client:
         query, _ = query_header
         req = client.build_request(
