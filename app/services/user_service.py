@@ -1,6 +1,6 @@
 from app.repositories import user_repo
 from app.services import gotify
-from app import models
+from app.models import user_model
 import uuid
 
 def create_and_store_user(username, password):
@@ -11,7 +11,7 @@ def create_and_store_user(username, password):
     client_token = create_client_for_user(username=username, password=password)
 
     # store user in db
-    user = models.User(id=uuid.uuid4(), username=username, password=password, client_token=client_token)
+    user = user_model.User(id=uuid.uuid4(), username=username, password=password, client_token=client_token)
     user_repo.create_user(user)
 
     return user
@@ -45,13 +45,13 @@ def check_and_update_user(username):
     if user: # if user found, update the user password to username
         gotify.user.update_user(user_id=user["id"], username=username, password=username)
         client_token = create_client_for_user(username=username, password=username)
-        user = models.User(username=username, password=username, client_token=client_token)
+        user = user_model.User(username=username, password=username, client_token=client_token)
         user_repo.update_user(user)
         return user
     else: # if user not found, create the user in gotify
         user = gotify.user.create_user(username=username, password=username)
         # store user in db
         client_token = create_client_for_user(username=username, password=username)
-        user = models.User(id=uuid.uuid4(), username=username, password=username, client_token=client_token)
+        user = user_model.User(id=uuid.uuid4(), username=username, password=username, client_token=client_token)
         user_repo.create_user(user)
         return user
