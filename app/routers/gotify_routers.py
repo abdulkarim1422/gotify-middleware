@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Query
+from fastapi import APIRouter
 from app.routers.gotify import application, client, health, message, plugin, user, version, static
 
 router = APIRouter()
