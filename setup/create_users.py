@@ -13,7 +13,7 @@ for row in rows:
     password = row[1]
 
     # Define the URL and payload
-    url = "http://127.0.0.1:" + port + '/user' + "?username=" + username + "&password=" + password
+    url = "http://127.0.0.1:" + port + '/api/v1/user' + "?username=" + username + "&password=" + password
 
     # Make the POST request
     response = requests.post(url)
