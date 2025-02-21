@@ -18,4 +18,4 @@ def get_user_last_active(username):
     user_obj = user_repo.get_user_by_username(username)
     if user_obj:
         return user_obj.last_active
-    return None
+    return f"User {username} not found"
