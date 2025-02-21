@@ -6,7 +6,7 @@ app = fastapi.FastAPI()
 
 # Include routers
 app.include_router(gotify_routers.router)
-app.include_router(internal_routers.router, prefix="/api", tags=["internal"])
+app.include_router(internal_routers.router, prefix="/api/v1", tags=["internal"])
 
 @app.get("/")
 def read_root():
